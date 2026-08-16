@@ -451,6 +451,20 @@ table.datatable td.evt{color:var(--text);}
         <p><code>/choosemaniac</code> — за убийцу, <code>/choosesurvivor</code> — за выжившего. Это только предпочтение: кто именно станет убийцей в конкретном раунде, решает злость. Повторно брать одного и того же выжившего можно — никто не запрещает.</p>
       </div>
 
+      <div class="panel" style="border-color:var(--amber-dim);">
+        <h3 style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;background:var(--support);flex-shrink:0;border-radius:50%;display:inline-block;"></span>
+          Подключение к серверу
+        </h3>
+        <table class="datatable" style="margin-bottom:2px;">
+          <tr><td class="evt" style="width:38%;">Версия</td><td class="num" style="text-align:left;color:var(--text);">1.19.4</td></tr>
+          <tr><td class="evt">Моды</td><td class="num" style="text-align:left;color:var(--text);">нет, ванильный клиент</td></tr>
+          <tr><td class="evt">Ресурспак</td><td class="num" style="text-align:left;color:var(--amber);">потребуется — задействован для ЛМС · пока отключён, не работает</td></tr>
+          <tr><td class="evt">IP</td><td class="num" style="text-align:left;"><code id="serverIp" style="color:var(--text);cursor:pointer;" title="Нажми, чтобы скопировать">dgdgsfdsg.aternos.me:41071</code></td></tr>
+        </table>
+        <p style="font-size:11.5px;color:var(--text-faint);margin-top:10px;">Сервер на Aternos — заходить только когда он включён хостом. Ресурспак сейчас отдаётся сервером, но не активен: до включения не запрашивается и на геймплей не влияет.</p>
+      </div>
+
       <div class="callout"><b>Мета-факт:</b> имена персонажей — не выдумка. Это реальные ники игроков, стоявшие за КладЛендом на протяжении двух лет: Тыщя/Ratatuy, Михуилонг, ДэнДэн, МякШмяк, Verstappenk0, Илья. Раздел «Лор» рассказывает, откуда они взялись.</p>
       </div>
     </section>
@@ -537,6 +551,19 @@ table.datatable td.evt{color:var(--text);}
 </div>
 
 <script>
+/* ============ SERVER IP COPY ============ */
+const ipEl = document.getElementById('serverIp');
+if(ipEl){
+  ipEl.addEventListener('click', ()=>{
+    const original = ipEl.textContent;
+    navigator.clipboard.writeText(original).then(()=>{
+      ipEl.textContent = 'скопировано ✓';
+      ipEl.style.color = 'var(--support)';
+      setTimeout(()=>{ ipEl.textContent = original; ipEl.style.color = 'var(--text)'; }, 1200);
+    }).catch(()=>{});
+  });
+}
+
 /* ============ NAV ============ */
 const links = document.querySelectorAll('.navlink');
 const sections = document.querySelectorAll('.section');

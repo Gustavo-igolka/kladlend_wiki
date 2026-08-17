@@ -404,6 +404,7 @@ table.datatable td.evt{color:var(--text);}
     <div class="navlink active" data-tab="overview"><span class="ico"></span>Обзор проекта</div>
 
     <div class="grp-label">Справочник</div>
+    <div class="navlink" data-tab="commands"><span class="ico"></span>Команды</div>
     <div class="navlink" data-tab="mechanics"><span class="ico"></span>Механики</div>
     <div class="navlink" data-tab="maniacs"><span class="ico"></span>Убийцы</div>
     <div class="navlink" data-tab="survivors"><span class="ico"></span>Выжившие</div>
@@ -466,6 +467,76 @@ table.datatable td.evt{color:var(--text);}
       </div>
 
       <div class="callout"><b>Мета-факт:</b> имена персонажей — не выдумка. Это реальные ники игроков, стоявшие за КладЛендом на протяжении двух лет: Тыщя/Ratatuy, Михуилонг, ДэнДэн, МякШмяк, Verstappenk0, Илья. Раздел «Лор» рассказывает, откуда они взялись.</p>
+      </div>
+    </section>
+
+    <!-- ========== COMMANDS ========== -->
+    <section class="section" id="sec-commands">
+      <div class="eyebrow">справочник</div>
+      <h1 class="title">Команды</h1>
+      <p class="subtitle">Полный список команд сервера — от базовых игровых до административных.</p>
+
+      <div class="class-banner" style="margin-top:0;">
+        <div class="swatch" style="background:var(--rusher)"></div>
+        <h2>Для всех игроков</h2>
+      </div>
+      <div class="panel">
+        <table class="datatable">
+          <tr><th>Команда</th><th>Описание</th></tr>
+          <tr><td class="evt"><code>/choosemaniac</code></td><td>Вызывает меню выбора предпочтительного маньяка.</td></tr>
+          <tr><td class="evt"><code>/choosesurvivor</code></td><td>Вызывает меню выбора предпочтительного выжившего.</td></tr>
+          <tr><td class="evt"><code>/levels</code></td><td>Открыть меню со своими уровнями и прогрессом по каждому персонажу.</td></tr>
+          <tr><td class="evt"><code>/anger</code></td><td>Посмотреть список всех игроков и их текущие очки злости.</td></tr>
+          <tr><td class="evt"><code>/money</code></td><td>Узнать свой баланс игровой валюты.</td></tr>
+          <tr><td class="evt"><code>/stats</code></td><td>Посмотреть общую статистику побед выживших и убийц.</td></tr>
+        </table>
+      </div>
+
+      <div class="class-banner">
+        <div class="swatch" style="background:var(--maniac)"></div>
+        <h2>Для модераторов / администраторов</h2>
+        <span class="desc">— требуют прав OP</span>
+      </div>
+
+      <div class="panel">
+        <h3>Управление раундами и игровым процессом</h3>
+        <table class="datatable">
+          <tr><th>Команда</th><th>Описание</th></tr>
+          <tr><td class="evt"><code>/startround &lt;карта|random&gt;</code></td><td>Запустить раунд на указанной или случайной карте.</td></tr>
+          <tr><td class="evt"><code>/endround</code></td><td>Принудительно завершить текущий раунд.</td></tr>
+          <tr><td class="evt"><code>/autoround</code></td><td>Переключить режим автоматического запуска раундов по таймеру.</td></tr>
+          <tr><td class="evt"><code>/resetgens</code></td><td>Вручную сбросить все починенные генераторы и вернуть их в состояние наковален.</td></tr>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h3>Настройка карт и точек спавна</h3>
+        <table class="datatable">
+          <tr><th>Команда</th><th>Описание</th></tr>
+          <tr><td class="evt"><code>/addmap &lt;название&gt;</code></td><td>Добавить новую карту в глобальный список.</td></tr>
+          <tr><td class="evt"><code>/listmaps</code></td><td>Посмотреть список всех зарегистрированных карт.</td></tr>
+          <tr><td class="evt"><code>/checkround &lt;карта&gt;</code></td><td>Проверить готовность карты к игре (наличие точек спавна и настроек).</td></tr>
+          <tr><td class="evt"><code>/setmaniacspawn &lt;карта&gt;</code></td><td>Установить точку появления маньяка на карте.</td></tr>
+          <tr><td class="evt"><code>/setsurvivorspawn &lt;карта&gt;</code></td><td>Добавить точку появления выжившего на карте.</td></tr>
+          <tr><td class="evt"><code>/setitemspawn &lt;карта&gt;</code></td><td>Добавить точку появления предметного лута (аптечка/скорость).</td></tr>
+          <tr><td class="evt"><code>/setlobby</code></td><td>Установить точку спавна в общем лобби.</td></tr>
+          <tr><td class="evt"><code>/setwaitmaniac</code></td><td>Установить точку в комнате ожидания маньяка.</td></tr>
+          <tr><td class="evt"><code>/setwaitsurvivor</code></td><td>Установить точку в комнате ожидания выживших.</td></tr>
+          <tr><td class="evt"><code>/setgensrequired &lt;число&gt;</code></td><td>Задать количество генераторов, необходимых для победы выживших.</td></tr>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h3>Настройка музыки и звуков</h3>
+        <table class="datatable">
+          <tr><th>Команда</th><th>Описание</th></tr>
+          <tr><td class="evt"><code>/setambient &lt;карта&gt; &lt;звук&gt; &lt;длительность&gt;</code></td><td>Задать фоновый эмбиент для карты.</td></tr>
+          <tr><td class="evt"><code>/clearambient &lt;карта&gt;</code></td><td>Удалить фоновый эмбиент с карты.</td></tr>
+          <tr><td class="evt"><code>/setchasemusic &lt;маньяк&gt; &lt;звук&gt; &lt;длительность&gt;</code></td><td>Задать музыку погони для конкретного убийцы.</td></tr>
+          <tr><td class="evt"><code>/clearchasemusic &lt;маньяк&gt;</code></td><td>Удалить музыку погони у маньяка.</td></tr>
+          <tr><td class="evt"><code>/setmenumusic &lt;звук&gt; &lt;длительность&gt;</code></td><td>Установить фоновую музыку для лобби/меню.</td></tr>
+          <tr><td class="evt"><code>/clearmenumusic</code></td><td>Убрать музыку из лобби.</td></tr>
+        </table>
       </div>
     </section>
 
@@ -568,7 +639,7 @@ if(ipEl){
 const links = document.querySelectorAll('.navlink');
 const sections = document.querySelectorAll('.section');
 const pathLabel = document.getElementById('pathLabel');
-const pathNames = {overview:'обзор', mechanics:'механики', maniacs:'убийцы', survivors:'выжившие', future:'будущие_персонажи', maps:'карты', lore:'лор', changes:'последние_изменения'};
+const pathNames = {overview:'обзор', commands:'команды', mechanics:'механики', maniacs:'убийцы', survivors:'выжившие', future:'будущие_персонажи', maps:'карты', lore:'лор', changes:'последние_изменения'};
 
 function setTab(tab){
   links.forEach(l=>l.classList.toggle('active', l.dataset.tab===tab));
@@ -926,7 +997,20 @@ const maps = [
    {name:'Центр', links:'—', fact:'Часть леса.'},
    {name:'Подвал («Г»-образная зона)', links:'от центра левой стороны до нижнего левого угла', fact:'Два генератора на двух концах подвала.', gen:2},
   ]},
- {name:'The_end', status:'none', statusLabel:'не описана', desc:'Карта зарегистрирована в списке, но словесное описание планировки пока не составлено.', rooms:[]},
+ {name:'The_end', status:'done', statusLabel:'готова', desc:'Основана на Лаборатории Авангарда, из которой сбежал Улей. Карта очень маленькая.',
+  rooms:[
+   {name:'Комната ожидания', links:'научный коридор, заброшенный коридор, растительный коридор, канализация', fact:'Спавн выживших.', gen:1},
+   {name:'Энд-зал', links:'заброшенный коридор, растительный коридор, канализация, комната с лестницей', fact:'Спавн убийцы.', gen:1},
+   {name:'Реактор лаборатории', links:'научный коридор', fact:'', gen:1},
+   {name:'Комната Кристалла', links:'заброшенный коридор', fact:'', gen:1},
+   {name:'Комната с лестницей', links:'канализация, лестничный коридор (внизу лестницы), энд-зал (вверху лестницы)', fact:'', gen:1},
+   {name:'Витрина', links:'канализация, растительный коридор', fact:''},
+   {name:'Канализация', links:'комната ожидания, энд-зал, комната с лестницей, витрина, заброшенный коридор', fact:'Обвивает всю карту маленькими люками — центральный хаб.'},
+   {name:'Научный коридор', links:'комната ожидания, лестничный коридор, реактор лаборатории', fact:'', gen:1},
+   {name:'Лестничный коридор', links:'научный коридор, комната с лестницей', fact:''},
+   {name:'Заброшенный коридор', links:'энд-зал, комната ожидания, комната с кристаллом, растительный коридор (дыра в полу), канализация', fact:''},
+   {name:'Растительный коридор', links:'витрина, энд-зал, комната ожидания', fact:'', gen:1},
+  ]},
  {name:'The_complex', status:'wip', statusLabel:'строится', desc:'В процессе постройки — детали появятся по мере готовности.', rooms:[]},
 ];
 const mapWrap = document.getElementById('mapCards');

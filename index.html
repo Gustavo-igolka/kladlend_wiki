@@ -306,6 +306,57 @@ table.datatable td.num{color:var(--gold);font-weight:600;text-align:right;white-
 table.datatable td.val{color:var(--text);text-align:left;white-space:normal;word-break:break-word;}
 table.datatable td.evt{color:var(--text);}
 
+/* jukebox / audio player */
+.jukebox{
+  border:1px solid var(--line);
+  background:var(--bg-1);
+  margin:14px 0 18px;
+}
+.jukebox-track{
+  display:grid;
+  grid-template-columns:36px 1fr auto;
+  align-items:center;
+  gap:12px;
+  padding:10px 14px;
+  border-bottom:1px solid var(--line-soft);
+  position:relative;
+  overflow:hidden;
+}
+.jukebox-track:last-child{border-bottom:none;}
+.jukebox-track .jb-fill{
+  position:absolute; inset:0;
+  width:0%;
+  background:linear-gradient(90deg, rgba(232,150,60,0.10), rgba(232,150,60,0.03));
+  pointer-events:none;
+  transition:width .15s linear;
+}
+.jb-play{
+  width:32px;height:32px;
+  flex-shrink:0;
+  border:1px solid var(--amber-dim);
+  background:var(--panel);
+  color:var(--amber);
+  font-family:var(--font-m);
+  font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  position:relative;
+  z-index:1;
+}
+.jb-play:hover{border-color:var(--amber);}
+.jukebox-track.playing .jb-play{background:var(--amber);color:#12100a;}
+.jb-info{position:relative;z-index:1;min-width:0;}
+.jb-name{color:var(--text);font-size:13.5px;font-weight:600;}
+.jb-sub{color:var(--text-faint);font-size:11.5px;margin-top:2px;}
+.jb-time{
+  position:relative;z-index:1;
+  font-size:11.5px;color:var(--text-faint);
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.jukebox-track.playing .jb-time{color:var(--amber);}
+.jukebox-note{padding:10px 14px;font-size:11.5px;color:var(--text-faint);border-top:1px solid var(--line-soft);}
+
 /* map card */
 .map-card{border:1px solid var(--line);background:var(--panel);margin-bottom:18px;}
 .map-head{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:8px;}
@@ -956,6 +1007,39 @@ const mechanics = [
 <tr><td class="evt">4. Скины</td><td class="val" style="color:var(--text-faint);">зарезервирован, ещё не реализован</td><td class="val" style="color:var(--text-faint);">—</td></tr>
 </table>
 <p>Праздничный трек (слой 2) подменяет обычный трек на время любого активного ивента, независимо от того, кто участвует в дуэли. BIG GAME (тоже слой 2) не связан с ивентами — срабатывает в любой обычной игре, если оба финалиста прокачали своего персонажа до максимума. Если дуэль кончается раньше таймера — трек принудительно останавливается при завершении раунда, вне зависимости от слоя.</p>
+<div class="jukebox" id="lmsJukebox">
+  <div class="jukebox-track" data-src="assets/audio/lms/king-of-tnt.mp3">
+    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+    <div class="jb-info"><div class="jb-name">King of TNT</div><div class="jb-sub">ДэнДэн + Михуилонг</div></div>
+    <div class="jb-time">2:17</div>
+  </div>
+  <div class="jukebox-track" data-src="assets/audio/lms/you-slow.mp3">
+    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+    <div class="jb-info"><div class="jb-name">You Slow</div><div class="jb-sub">Аномалия + Томас</div></div>
+    <div class="jb-time">2:17</div>
+  </div>
+  <div class="jukebox-track" data-src="assets/audio/lms/apokalipsis-neo.mp3">
+    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+    <div class="jb-info"><div class="jb-name">Apokalipsis Neo</div><div class="jb-sub">Некромансик + Маёр</div></div>
+    <div class="jb-time">2:17</div>
+  </div>
+  <div class="jukebox-track" data-src="assets/audio/lms/holiday-now-run.mp3">
+    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+    <div class="jb-info"><div class="jb-name">holiday_now_run</div><div class="jb-sub">слой 2 · праздничный</div></div>
+    <div class="jb-time">2:17</div>
+  </div>
+  <div class="jukebox-track" data-src="assets/audio/lms/big-game.mp3">
+    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+    <div class="jb-info"><div class="jb-name">big_game</div><div class="jb-sub">слой 2 · оба на максимуме</div></div>
+    <div class="jb-time">2:17</div>
+  </div>
+  <div class="jukebox-track" data-src="assets/audio/lms/kladlend-now-run.mp3">
+    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+    <div class="jb-info"><div class="jb-name">Kladlend, Now Run</div><div class="jb-sub">слой 3 · обычный</div></div>
+    <div class="jb-time">2:17</div>
+  </div>
+  <div class="jukebox-note">Файлы кладутся в <code>assets/audio/lms/</code> в репозитории под именами выше (или поменяйте пути в коде под свои).</div>
+</div>
 <p><b>Эмбиент</b> — фоновый звук конкретной карты, задаётся через <code>/setambient</code>, играет в цикле пока раунд идёт на этой карте. Необязателен.</p>
 <p><b>Музыка погони</b> — своя для каждого выжившего, задаётся через <code>/setchasemusic &lt;убийца&gt;</code>. Раз в секунду считается дистанция до убийцы: ≤15 блоков — трек включается, &gt;20 блоков — выключается, между 15 и 20 — гистерезис, ничего не меняется (чтобы музыка не мигала на границе). Видимость и стены не учитываются.</p>
 <p><b>Музыка меню</b> — играет всем на сервере, пока раунд не идёт. Глохнет при <code>/startround</code>, мгновенно возобновляется по окончании раунда.</p>`},
@@ -1031,6 +1115,61 @@ const mechanics = [
 <p>Полный список готовых моделей — в разделе «Скины».</p>`},
 ];
 makeAccordion(document.getElementById('accMechanics'), mechanics);
+
+/* ============ LMS JUKEBOX ============ */
+(function(){
+  const jb = document.getElementById('lmsJukebox');
+  if(!jb) return;
+  const audio = new Audio();
+  audio.preload = 'none';
+  let activeRow = null;
+
+  function fmt(sec){
+    if(!isFinite(sec)) return '2:17';
+    const m = Math.floor(sec/60), s = Math.floor(sec%60);
+    return m+':'+String(s).padStart(2,'0');
+  }
+  function reset(row){
+    if(!row) return;
+    row.classList.remove('playing');
+    row.querySelector('.jb-play').textContent = '▶';
+    row.querySelector('.jb-fill').style.width = '0%';
+    row.querySelector('.jb-time').textContent = '2:17';
+  }
+  jb.querySelectorAll('.jukebox-track').forEach(row=>{
+    row.querySelector('.jb-play').addEventListener('click', ()=>{
+      const src = row.getAttribute('data-src');
+      if(activeRow === row && !audio.paused){
+        audio.pause();
+        row.classList.remove('playing');
+        row.querySelector('.jb-play').textContent = '▶';
+        return;
+      }
+      if(activeRow === row && audio.paused && audio.currentTime > 0){
+        audio.play().catch(()=>{});
+        row.classList.add('playing');
+        row.querySelector('.jb-play').textContent = '⏸';
+        return;
+      }
+      if(activeRow) reset(activeRow);
+      activeRow = row;
+      audio.src = src;
+      audio.currentTime = 0;
+      audio.play().catch(()=>{
+        row.querySelector('.jb-sub').textContent = 'файл не найден — проверьте путь';
+      });
+      row.classList.add('playing');
+      row.querySelector('.jb-play').textContent = '⏸';
+    });
+  });
+  audio.addEventListener('timeupdate', ()=>{
+    if(!activeRow) return;
+    const dur = audio.duration || 137;
+    activeRow.querySelector('.jb-fill').style.width = (audio.currentTime/dur*100)+'%';
+    activeRow.querySelector('.jb-time').textContent = fmt(dur - audio.currentTime);
+  });
+  audio.addEventListener('ended', ()=>{ reset(activeRow); activeRow=null; });
+})();
 
 /* ============ MANIACS DATA ============ */
 const maniacs = [

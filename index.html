@@ -357,6 +357,65 @@ table.datatable td.evt{color:var(--text);}
 .jukebox-track.playing .jb-time{color:var(--amber);}
 .jukebox-note{padding:10px 14px;font-size:11.5px;color:var(--text-faint);border-top:1px solid var(--line-soft);}
 
+/* 3d skin viewer (display-only, based on skin3d.html engine) */
+.sk3d-wrap{display:flex;flex-direction:column;gap:12px;}
+.sk3d-viewport{
+  position:relative;
+  width:100%;
+  max-width:320px;
+  aspect-ratio:1/1;
+  margin:0 auto;
+  background:radial-gradient(circle at 50% 30%, #202329 0%, var(--bg-1) 70%);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  perspective:900px;
+  touch-action:none;
+  cursor:grab;
+}
+.sk3d-viewport.dragging{cursor:grabbing;}
+.sk3d-scene{
+  position:absolute; left:50%; top:56%;
+  width:0; height:0;
+  transform-style:preserve-3d;
+  transform:translateZ(-60px) rotateX(-14deg) rotateY(28deg);
+}
+.sk3d-part{position:absolute; left:0; top:0; transform-style:preserve-3d;}
+.sk3d-face{
+  position:absolute;
+  background-repeat:no-repeat;
+  image-rendering:pixelated;
+  image-rendering:-moz-crisp-edges;
+  image-rendering:crisp-edges;
+  backface-visibility:hidden;
+}
+.sk3d-hint{font-size:11px;color:var(--text-faint);text-align:center;margin:-4px 0 0;transition:opacity .2s;}
+.sk3d-controls{display:flex;flex-direction:column;gap:8px;max-width:320px;margin:0 auto;width:100%;}
+.sk3d-row{display:flex;gap:6px;flex-wrap:wrap;}
+.sk3d-btn{
+  flex:1;min-width:56px;
+  background:var(--panel-2);
+  border:1px solid var(--line);
+  color:var(--text-dim);
+  font-family:var(--font-m);
+  font-size:11.5px;
+  padding:7px 4px;
+  border-radius:var(--radius);
+  text-align:center;
+  cursor:pointer;
+  user-select:none;
+}
+.sk3d-btn:hover{border-color:var(--amber-dim);color:var(--text);}
+.sk3d-btn.active{border-color:var(--amber);color:var(--amber);}
+.sk3d-zoomrow{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:7px 12px;}
+.sk3d-zoomrow span{font-size:11px;color:var(--text-faint);white-space:nowrap;}
+.sk3d-zoomrow input[type=range]{width:100%;accent-color:var(--amber);}
+.sk3d-current{font-size:12px;color:var(--text-faint);text-align:center;}
+.sk3d-current b{color:var(--text);}
+.skin-pick-table td.evt{cursor:pointer;}
+.skin-pick-table tr.sk-active td{color:var(--amber);}
+.skin-pick-table tr.sk-active td.evt{color:var(--amber);}
+
 /* map card */
 .map-card{border:1px solid var(--line);background:var(--panel);margin-bottom:18px;}
 .map-head{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:8px;}
@@ -465,6 +524,7 @@ table.datatable td.evt{color:var(--text);}
     <div class="navlink" data-tab="maniacs"><span class="ico"></span>Убийцы</div>
     <div class="navlink" data-tab="survivors"><span class="ico"></span>Выжившие</div>
     <div class="navlink" data-tab="skins"><span class="ico"></span>Скины</div>
+    <div class="navlink" data-tab="music"><span class="ico"></span>Музыка</div>
     <div class="navlink" data-tab="future"><span class="ico"></span>Будущие персонажи</div>
     <div class="navlink" data-tab="events"><span class="ico"></span>Ивенты</div>
     <div class="navlink" data-tab="maps"><span class="ico"></span>Карты</div>
@@ -695,7 +755,100 @@ table.datatable td.evt{color:var(--text);}
       <div class="eyebrow">косметика</div>
       <h1 class="title">Скины</h1>
       <p class="subtitle">Скин привязан не к игроку, а к персонажу — какого выбрал на раунд, в том и ходишь. Три источника: классический (открыт всем всегда), милстоун (бесплатный разлок на 25/50/75/100 ур. персонажа) и магазинный (за деньги через <code>/skinshop</code>). Как это работает — в разделе «Механики», п.22.</p>
+
+      <div class="callout"><b>История:</b> раньше на месте скинов была механика памятной брони за милстоуны — вместе с ней тянулся и ванильный баг невидимости (модель прячется, надетая броня — нет). В версии 2.1 броню полностью убрали и заменили системой скинов: милстоуны теперь дают именно скин, а не физическую броню, так что и баг с просвечивающей бронёй больше неактуален.</div>
+
+      <div class="panel">
+        <h3>3D-просмотр</h3>
+        <p style="font-size:12.5px;color:var(--text-faint);margin-bottom:14px;">Клик по скину в таблице ниже показывает его на модели. Тяни мышью/пальцем, чтобы повернуть, или жми кнопки сторон. Файлы текстур подгружаются из репозитория — так же, как треки в разделе «Музыка».</p>
+        <div class="sk3d-wrap">
+          <div class="sk3d-viewport" id="sk3dViewport">
+            <div class="sk3d-scene" id="sk3dScene"></div>
+          </div>
+          <p class="sk3d-hint" id="sk3dHint">Перетащи, чтобы вращать</p>
+          <div class="sk3d-current" id="sk3dCurrent">Скин не выбран — кликни по строке в таблице ниже</div>
+          <div class="sk3d-controls">
+            <div class="sk3d-row">
+              <button class="sk3d-btn" data-view="front">Спереди</button>
+              <button class="sk3d-btn" data-view="back">Сзади</button>
+              <button class="sk3d-btn" data-view="left">Слева</button>
+              <button class="sk3d-btn" data-view="right">Справа</button>
+              <button class="sk3d-btn" data-view="top">Сверху</button>
+              <button class="sk3d-btn" data-view="bottom">Снизу</button>
+            </div>
+            <div class="sk3d-row">
+              <button class="sk3d-btn" id="sk3dAutoBtn" style="flex:0 0 100%;">Автовращение</button>
+            </div>
+            <div class="sk3d-zoomrow">
+              <span>Зум</span>
+              <input type="range" id="sk3dZoom" min="60" max="220" value="130">
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="skinsTable"></div>
+    </section>
+
+    <!-- ========== MUSIC ========== -->
+    <section class="section" id="sec-music">
+      <div class="eyebrow">справочник</div>
+      <h1 class="title">Музыка</h1>
+      <p class="subtitle">ЛМС-треки, эмбиент карт, музыка погони и лобби. Логика привязана к дистанции убийца↔выживший — подробнее об этой системе в разделе «Механики», п.16 и п.17.</p>
+
+      <div class="panel">
+        <h3>ЛМС-треки — слои приоритета</h3>
+        <p style="margin-bottom:12px;">Все треки ровно 2:15 — под длину таймера финальной дуэли. Выбираются по слоям — первый подходящий слой перекрывает все следующие:</p>
+        <table class="datatable">
+          <tr><th>Слой</th><th>Условие</th><th>Трек</th></tr>
+          <tr><td class="evt">1. Сюжетные пары</td><td class="val">конкретная пара убийца × выживший</td><td class="val"><i>King of TNT</i> (ДэнДэн + Михуилонг) · <i>You Slow</i> (Аномалия + Томас) · <i>Apokalipsis Neo</i> (Некромансик + Маёр)</td></tr>
+          <tr><td class="evt">2. Праздник / BIG GAME</td><td class="val">идёт ивент — или оба финалиста открыли 4-й милстоун (100 ур.) на своём персонаже</td><td class="val"><i>holiday_now_run</i> · <i>big_game</i></td></tr>
+          <tr><td class="evt">3. Обычный</td><td class="val">по умолчанию</td><td class="val"><i>Kladlend, Now Run</i></td></tr>
+          <tr><td class="evt">4. Скины</td><td class="val" style="color:var(--text-faint);">зарезервирован, ещё не реализован</td><td class="val" style="color:var(--text-faint);">—</td></tr>
+        </table>
+        <p style="margin-top:12px;">Праздничный трек (слой 2) подменяет обычный трек на время любого активного ивента, независимо от того, кто участвует в дуэли. BIG GAME (тоже слой 2) не связан с ивентами — срабатывает в любой обычной игре, если оба финалиста прокачали своего персонажа до максимума. Если дуэль кончается раньше таймера — трек принудительно останавливается при завершении раунда, вне зависимости от слоя.</p>
+      </div>
+
+      <div class="jukebox" id="lmsJukebox">
+        <div class="jukebox-track" data-src="assets/audio/lms/king-of-tnt.mp3">
+          <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+          <div class="jb-info"><div class="jb-name">King of TNT</div><div class="jb-sub">ДэнДэн + Михуилонг</div></div>
+          <div class="jb-time">2:15</div>
+        </div>
+        <div class="jukebox-track" data-src="assets/audio/lms/you-slow.mp3">
+          <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+          <div class="jb-info"><div class="jb-name">You Slow</div><div class="jb-sub">Аномалия + Томас</div></div>
+          <div class="jb-time">2:15</div>
+        </div>
+        <div class="jukebox-track" data-src="assets/audio/lms/apokalipsis-neo.mp3">
+          <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+          <div class="jb-info"><div class="jb-name">Apokalipsis Neo</div><div class="jb-sub">Некромансик + Маёр</div></div>
+          <div class="jb-time">2:15</div>
+        </div>
+        <div class="jukebox-track" data-src="assets/audio/lms/holiday-now-run.mp3">
+          <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+          <div class="jb-info"><div class="jb-name">holiday_now_run</div><div class="jb-sub">слой 2 · праздничный</div></div>
+          <div class="jb-time">2:15</div>
+        </div>
+        <div class="jukebox-track" data-src="assets/audio/lms/big-game.mp3">
+          <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+          <div class="jb-info"><div class="jb-name">big_game</div><div class="jb-sub">слой 2 · оба на максимуме</div></div>
+          <div class="jb-time">2:15</div>
+        </div>
+        <div class="jukebox-track" data-src="assets/audio/lms/kladlend-now-run.mp3">
+          <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
+          <div class="jb-info"><div class="jb-name">Kladlend, Now Run</div><div class="jb-sub">слой 3 · обычный</div></div>
+          <div class="jb-time">2:15</div>
+        </div>
+        <div class="jukebox-note">Файлы кладутся в <code>assets/audio/lms/</code> в репозитории под именами выше (или поменяйте пути в коде под свои).</div>
+      </div>
+
+      <div class="panel">
+        <h3>Эмбиент, погоня, меню</h3>
+        <p><b>Эмбиент</b> — фоновый звук конкретной карты, задаётся через <code>/setambient</code>, играет в цикле пока раунд идёт на этой карте. Необязателен.</p>
+        <p><b>Музыка погони</b> — своя для каждого выжившего, задаётся через <code>/setchasemusic &lt;убийца&gt;</code>. Раз в секунду считается дистанция до убийцы: ≤15 блоков — трек включается, &gt;20 блоков — выключается, между 15 и 20 — гистерезис, ничего не меняется (чтобы музыка не мигала на границе). Видимость и стены не учитываются.</p>
+        <p><b>Музыка меню</b> — играет всем на сервере, пока раунд не идёт. Глохнет при <code>/startround</code>, мгновенно возобновляется по окончании раунда.</p>
+      </div>
     </section>
 
     <!-- ========== FUTURE ========== -->
@@ -806,7 +959,7 @@ table.datatable td.evt{color:var(--text);}
 
 <script>
 /* ============ WIKI VERSION — единая точка правки ============ */
-const WIKI_VERSION = '2.4.1';
+const WIKI_VERSION = '2.4.2';
 document.querySelectorAll('.wiki-version').forEach(el => el.textContent = WIKI_VERSION);
 
 /* ============ SERVER IP COPY ============ */
@@ -833,6 +986,7 @@ const pathNames = {
   maniacs:'убийцы',
   survivors:'выжившие',
   skins:'скины',
+  music:'музыка',
   future:'будущие_персонажи',
   events:'ивенты',
   maps:'карты',
@@ -969,7 +1123,7 @@ const mechanics = [
 
 {num:'10', title:'Финальная дуэль (ЛМС)', body:`
 <p>Запускается, когда живым остался ровно один выживший. Убийца и этот выживший получают Glowing на <b style="color:var(--text)">12 секунд</b> (видят друг друга через стены). Играет тематический звук/анонс.</p>
-<p>Таймер дуэли — <b style="color:var(--text)">2 минуты 17 секунд</b>. Если по истечении таймера раунд ещё активен и выживший жив — засчитывается победа выжившего в ЛМС. Если выживший погибает раньше — обычная победа убийцы.</p>`},
+<p>Таймер дуэли — <b style="color:var(--text)">2 минуты 15 секунд</b>. Если по истечении таймера раунд ещё активен и выживший жив — засчитывается победа выжившего в ЛМС. Если выживший погибает раньше — обычная победа убийцы.</p>`},
 
 {num:'11', title:'Укрытия (шкафы/бочки)', body:`
 <p><b style="color:var(--rusher)">Выживший:</b> клик по бочке — прячется (Invisibility), повторный клик — выходит (снимает невидимость, Speed I на 2 сек для отрыва). Автовыброс через 15 сек — вечно сидеть нельзя.</p>
@@ -988,9 +1142,6 @@ const mechanics = [
 <p>После смерти игрок обычно уходит в спектатор и телепортируется в лобби. Исключение — Илья с отложенным возрождением: при заряженной шкале станов (3 полных стана) он вместо этого телепортируется на свою метку возрождения (или на первую точку выживших карты, если метку не ставил), выходит из спектатора и получает Glowing на 15 сек. Этот путь работает только вне финальной дуэли (ЛМС) — там заряды конвертируются в сердца при входе в дуэль (способности п.«Илья»).</p>
 <p>Шкала станов и счётчик после этого сбрасываются — повторное возрождение в этом раунде уже недоступно.</p>`},
 
-{num:'14', title:'Броня-милстоуны — упразднено', body:`
-<p>Раньше на этом месте была механика памятной брони за милстоуны и починка ванильного бага с невидимостью (модель прячется, надетая броня — нет). В версии 2.1 памятная броня полностью убрана и заменена системой скинов — милстоуны теперь дают именно скин, а не физическую броню, так что и баг с просвечивающей бронёй больше неактуален. Подробности — п.22.</p>`},
-
 {num:'15', title:'Предметы на карте', body:`
 <p>Точечный баланс-патч против убийцы, не привязанный к персонажу или способностям — доступен любому выжившему.</p>
 <p>Два вида, оба одноразовые: <b style="color:var(--support)">Аптечка</b> — лечит на 6 сердец; <b style="color:var(--rusher)">Скорость</b> — Speed I на 10 секунд.</p>
@@ -998,51 +1149,7 @@ const mechanics = [
 <p>Убийца поднять предметы не может. Неподобранные убираются с карты в конце раунда. Никакой злости/XP не дают — чисто утилитарная компенсация.</p>`},
 
 {num:'16', title:'Музыка: ЛМС, эмбиент, погоня, меню', body:`
-<p><b>ЛМС-треки</b> (все ровно 2:17 — под длину таймера дуэли) выбираются по слоям приоритета — первый подходящий слой перекрывает все следующие:</p>
-<table class="datatable">
-<tr><th>Слой</th><th>Условие</th><th>Трек</th></tr>
-<tr><td class="evt">1. Сюжетные пары</td><td class="val">конкретная пара убийца × выживший</td><td class="val"><i>King of TNT</i> (ДэнДэн + Михуилонг) · <i>You Slow</i> (Аномалия + Томас) · <i>Apokalipsis Neo</i> (Некромансик + Маёр)</td></tr>
-<tr><td class="evt">2. Праздник / BIG GAME</td><td class="val">идёт ивент — или оба финалиста открыли 4-й милстоун (100 ур.) на своём персонаже</td><td class="val"><i>holiday_now_run</i> · <i>big_game</i></td></tr>
-<tr><td class="evt">3. Обычный</td><td class="val">по умолчанию</td><td class="val"><i>Kladlend, Now Run</i></td></tr>
-<tr><td class="evt">4. Скины</td><td class="val" style="color:var(--text-faint);">зарезервирован, ещё не реализован</td><td class="val" style="color:var(--text-faint);">—</td></tr>
-</table>
-<p>Праздничный трек (слой 2) подменяет обычный трек на время любого активного ивента, независимо от того, кто участвует в дуэли. BIG GAME (тоже слой 2) не связан с ивентами — срабатывает в любой обычной игре, если оба финалиста прокачали своего персонажа до максимума. Если дуэль кончается раньше таймера — трек принудительно останавливается при завершении раунда, вне зависимости от слоя.</p>
-<div class="jukebox" id="lmsJukebox">
-  <div class="jukebox-track" data-src="assets/audio/lms/king-of-tnt.mp3">
-    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
-    <div class="jb-info"><div class="jb-name">King of TNT</div><div class="jb-sub">ДэнДэн + Михуилонг</div></div>
-    <div class="jb-time">2:17</div>
-  </div>
-  <div class="jukebox-track" data-src="assets/audio/lms/you-slow.mp3">
-    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
-    <div class="jb-info"><div class="jb-name">You Slow</div><div class="jb-sub">Аномалия + Томас</div></div>
-    <div class="jb-time">2:17</div>
-  </div>
-  <div class="jukebox-track" data-src="assets/audio/lms/apokalipsis-neo.mp3">
-    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
-    <div class="jb-info"><div class="jb-name">Apokalipsis Neo</div><div class="jb-sub">Некромансик + Маёр</div></div>
-    <div class="jb-time">2:17</div>
-  </div>
-  <div class="jukebox-track" data-src="assets/audio/lms/holiday-now-run.mp3">
-    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
-    <div class="jb-info"><div class="jb-name">holiday_now_run</div><div class="jb-sub">слой 2 · праздничный</div></div>
-    <div class="jb-time">2:17</div>
-  </div>
-  <div class="jukebox-track" data-src="assets/audio/lms/big-game.mp3">
-    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
-    <div class="jb-info"><div class="jb-name">big_game</div><div class="jb-sub">слой 2 · оба на максимуме</div></div>
-    <div class="jb-time">2:17</div>
-  </div>
-  <div class="jukebox-track" data-src="assets/audio/lms/kladlend-now-run.mp3">
-    <div class="jb-fill"></div><button class="jb-play" aria-label="Играть">▶</button>
-    <div class="jb-info"><div class="jb-name">Kladlend, Now Run</div><div class="jb-sub">слой 3 · обычный</div></div>
-    <div class="jb-time">2:17</div>
-  </div>
-  <div class="jukebox-note">Файлы кладутся в <code>assets/audio/lms/</code> в репозитории под именами выше (или поменяйте пути в коде под свои).</div>
-</div>
-<p><b>Эмбиент</b> — фоновый звук конкретной карты, задаётся через <code>/setambient</code>, играет в цикле пока раунд идёт на этой карте. Необязателен.</p>
-<p><b>Музыка погони</b> — своя для каждого выжившего, задаётся через <code>/setchasemusic &lt;убийца&gt;</code>. Раз в секунду считается дистанция до убийцы: ≤15 блоков — трек включается, &gt;20 блоков — выключается, между 15 и 20 — гистерезис, ничего не меняется (чтобы музыка не мигала на границе). Видимость и стены не учитываются.</p>
-<p><b>Музыка меню</b> — играет всем на сервере, пока раунд не идёт. Глохнет при <code>/startround</code>, мгновенно возобновляется по окончании раунда.</p>`},
+<p>Вся музыкальная система (слои приоритета ЛМС-треков, плеер, эмбиент, музыка погони и меню) переехала в отдельный раздел «Музыка» — там же прослушивание треков. Здесь, в механиках, эта система упоминается только как логическая привязка к дистанции убийца↔выживший, на которую опирается и нарастающая скорость погони (см. п.17).</p>`},
 
 {num:'17', title:'Погоня: нарастающая скорость убийцы', body:`
 <p>Пока убийца активно преследует выжившего, он постепенно ускоряется — чем дольше длится погоня, тем убийцу труднее оторвать чистым бегом:</p>
@@ -1125,7 +1232,7 @@ makeAccordion(document.getElementById('accMechanics'), mechanics);
   let activeRow = null;
 
   function fmt(sec){
-    if(!isFinite(sec)) return '2:17';
+    if(!isFinite(sec)) return '2:15';
     const m = Math.floor(sec/60), s = Math.floor(sec%60);
     return m+':'+String(s).padStart(2,'0');
   }
@@ -1134,7 +1241,7 @@ makeAccordion(document.getElementById('accMechanics'), mechanics);
     row.classList.remove('playing');
     row.querySelector('.jb-play').textContent = '▶';
     row.querySelector('.jb-fill').style.width = '0%';
-    row.querySelector('.jb-time').textContent = '2:17';
+    row.querySelector('.jb-time').textContent = '2:15';
   }
   jb.querySelectorAll('.jukebox-track').forEach(row=>{
     row.querySelector('.jb-play').addEventListener('click', ()=>{
@@ -1310,31 +1417,34 @@ survivorClasses.forEach(cls=>{
 
 /* ============ SKINS ============ */
 const skinsData = [
- {char:'Некромансик', skins:[
-   {name:'Базовый', src:'classic'},
+ {char:'Некромансик', slug:'nekromansik', skins:[
+   {name:'Базовый', src:'classic', file:'classic.png'},
  ]},
- {char:'Аномалия', skins:[
-   {name:'Базовый', src:'classic'},
-   {name:'NoFace', src:'shop', price:'2025 монет'},
-   {name:'Херобрин', src:'shop', price:'2012 монет'},
-   {name:'Милстоун 1', src:'milestone', price:'25 ур.'},
-   {name:'Милстоун 2', src:'milestone', price:'50 ур.'},
-   {name:'Милстоун 3', src:'milestone', price:'75 ур.'},
-   {name:'Милстоун 4', src:'milestone', price:'100 ур.'},
+ {char:'Аномалия', slug:'anomaly', skins:[
+   {name:'Базовый', src:'classic', file:'classic.png'},
+   {name:'NoFace', src:'shop', price:'2025 монет', file:'noface.png'},
+   {name:'Херобрин', src:'shop', price:'2012 монет', file:'herobrine.png'},
+   {name:'Милстоун 1', src:'milestone', price:'25 ур.', file:'1m.png'},
+   {name:'Милстоун 2', src:'milestone', price:'50 ур.', file:'2m.png'},
+   {name:'Милстоун 3', src:'milestone', price:'75 ур.', file:'3m.png'},
+   {name:'Милстоун 4', src:'milestone', price:'100 ур.', file:'4m.png'},
  ]},
- {char:'Рататуй', skins:[
-   {name:'Базовый (тыква)', src:'classic'},
-   {name:'Без тыквы', src:'shop', price:'500 монет'},
-   {name:'banil_4759', src:'shop', price:'465 монет'},
-   {name:'Милстоун 1', src:'milestone', price:'25 ур.'},
-   {name:'Милстоун 2', src:'milestone', price:'50 ур.'},
-   {name:'Милстоун 3', src:'milestone', price:'75 ур.'},
-   {name:'Милстоун 4', src:'milestone', price:'100 ур.'},
+ {char:'Рататуй', slug:'ratatuy', skins:[
+   {name:'Базовый (тыква)', src:'classic', file:'classic.png'},
+   {name:'Без тыквы', src:'shop', price:'500 монет', file:'no_pumpkin.png'},
+   {name:'banil_4759', src:'shop', price:'465 монет', file:'banil_4759.png'},
+   {name:'Милстоун 1', src:'milestone', price:'25 ур.', file:'1m.png'},
+   {name:'Милстоун 2', src:'milestone', price:'50 ур.', file:'2m.png'},
+   {name:'Милстоун 3', src:'milestone', price:'75 ур.', file:'3m.png'},
+   {name:'Милстоун 4', src:'milestone', price:'100 ур.', file:'4m.png'},
  ]},
- {char:'Маёр', skins:[
-   {name:'Базовый', src:'classic'},
+ {char:'Маёр', slug:'mayor', skins:[
+   {name:'Базовый', src:'classic', file:'classic.png'},
  ]},
 ];
+/* Пути к текстурам: assets/skins/<slug>/<file> в репозитории — так же, как
+   треки джукбокса лежат в assets/audio/lms/. Положите PNG 64×64 под этими
+   именами, и 3D-просмотр в этой вкладке подхватит их сам. */
 const skinSrcLabel = {classic:'классический', milestone:'милстоун', shop:'магазин'};
 const skinSrcColor = {classic:'var(--text-dim)', milestone:'var(--gold)', shop:'var(--amber)'};
 const skinsWrap = document.getElementById('skinsTable');
@@ -1348,9 +1458,9 @@ if(skinsWrap){
     const panel = document.createElement('div');
     panel.className = 'panel';
     panel.innerHTML = `<h3 style="margin-bottom:12px;">${c.char}</h3>
-      <table class="datatable">
+      <table class="datatable skin-pick-table">
         <tr><th>Скин</th><th>Источник</th><th>Цена</th></tr>
-        ${c.skins.map(s=>`<tr>
+        ${c.skins.map((s,i)=>`<tr data-slug="${c.slug}" data-file="${s.file}" data-char="${c.char}" data-skin="${s.name}">
           <td class="evt">${s.name}</td>
           <td class="val" style="color:${skinSrcColor[s.src]}">${skinSrcLabel[s.src]}</td>
           <td class="val">${s.price || 'открыт всем'}</td>
@@ -1358,7 +1468,139 @@ if(skinsWrap){
       </table>`;
     skinsWrap.appendChild(panel);
   });
+  skinsWrap.querySelectorAll('.skin-pick-table tr[data-slug]').forEach(row=>{
+    row.addEventListener('click', ()=>{
+      if(typeof loadSkin3D === 'function'){
+        loadSkin3D(row.dataset.slug, row.dataset.file, row.dataset.char, row.dataset.skin, row);
+      }
+    });
+  });
 }
+
+/* ============ SKIN 3D VIEWER (display-only) ============ */
+(function(){
+  const viewport = document.getElementById('sk3dViewport');
+  if(!viewport) return;
+  const scene = document.getElementById('sk3dScene');
+  const hint = document.getElementById('sk3dHint');
+  const currentEl = document.getElementById('sk3dCurrent');
+  const PX = 6, TEX_SIZE = 64;
+
+  const PARTS = {
+    head:  {w:8,h:8,d:8, pos:{x:0,y:-10,z:0}, inflate:0,
+      faces:{top:[8,0,8,8],bottom:[16,0,8,8],right:[0,8,8,8],front:[8,8,8,8],left:[16,8,8,8],back:[24,8,8,8]}},
+    body:  {w:8,h:12,d:4, pos:{x:0,y:0,z:0}, inflate:0,
+      faces:{top:[20,16,8,4],bottom:[28,16,8,4],right:[16,20,4,12],front:[20,20,8,12],left:[28,20,4,12],back:[32,20,8,12]}},
+    armR:  {w:4,h:12,d:4, pos:{x:-6,y:0,z:0}, inflate:0,
+      faces:{top:[44,16,4,4],bottom:[48,16,4,4],right:[40,20,4,12],front:[44,20,4,12],left:[48,20,4,12],back:[52,20,4,12]}},
+    legR:  {w:4,h:12,d:4, pos:{x:-2,y:12,z:0}, inflate:0,
+      faces:{top:[4,16,4,4],bottom:[8,16,4,4],right:[0,20,4,12],front:[4,20,4,12],left:[8,20,4,12],back:[12,20,4,12]}},
+    legL:  {w:4,h:12,d:4, pos:{x:2,y:12,z:0}, inflate:0,
+      faces:{top:[20,48,4,4],bottom:[24,48,4,4],right:[16,52,4,12],front:[20,52,4,12],left:[24,52,4,12],back:[28,52,4,12]}},
+    armL:  {w:4,h:12,d:4, pos:{x:6,y:0,z:0}, inflate:0,
+      faces:{top:[36,48,4,4],bottom:[40,48,4,4],right:[32,52,4,12],front:[36,52,4,12],left:[40,52,4,12],back:[44,52,4,12]}},
+    head2: {w:8,h:8,d:8, pos:{x:0,y:-10,z:0}, inflate:0.5,
+      faces:{top:[40,0,8,8],bottom:[48,0,8,8],right:[32,8,8,8],front:[40,8,8,8],left:[48,8,8,8],back:[56,8,8,8]}},
+    body2: {w:8,h:12,d:4, pos:{x:0,y:0,z:0}, inflate:0.5,
+      faces:{top:[20,32,8,4],bottom:[28,32,8,4],right:[16,36,4,12],front:[20,36,8,12],left:[28,36,4,12],back:[32,36,8,12]}},
+    armR2: {w:4,h:12,d:4, pos:{x:-6,y:0,z:0}, inflate:0.5,
+      faces:{top:[44,32,4,4],bottom:[48,32,4,4],right:[40,36,4,12],front:[44,36,4,12],left:[48,36,4,12],back:[52,36,4,12]}},
+    legR2: {w:4,h:12,d:4, pos:{x:-2,y:12,z:0}, inflate:0.5,
+      faces:{top:[4,32,4,4],bottom:[8,32,4,4],right:[0,36,4,12],front:[4,36,4,12],left:[8,36,4,12],back:[12,36,4,12]}},
+    legL2: {w:4,h:12,d:4, pos:{x:2,y:12,z:0}, inflate:0.5,
+      faces:{top:[4,48,4,4],bottom:[8,48,4,4],right:[0,52,4,12],front:[4,52,4,12],left:[8,52,4,12],back:[12,52,4,12]}},
+    armL2: {w:4,h:12,d:4, pos:{x:6,y:0,z:0}, inflate:0.5,
+      faces:{top:[52,48,4,4],bottom:[56,48,4,4],right:[48,52,4,12],front:[52,52,4,12],left:[56,52,4,12],back:[60,52,4,12]}}
+  };
+
+  function makeFace(type, region, w, h, d, inflate, partName){
+    inflate = inflate || 0;
+    const div = document.createElement('div');
+    div.className = 'sk3d-face';
+    const W=(w+inflate*2)*PX, H=(h+inflate*2)*PX, D=(d+inflate*2)*PX;
+    let faceW=W, faceH=H, zDist=D/2;
+    if(type==='right'||type==='left'){ faceW=D; faceH=H; zDist=W/2; }
+    if(type==='top'||type==='bottom'){ faceW=W; faceH=D; zDist=H/2; }
+    div.style.width=faceW+'px'; div.style.height=faceH+'px';
+    const scaleX=faceW/region[2], scaleY=faceH/region[3];
+    div.style.backgroundSize=(TEX_SIZE*scaleX)+'px '+(TEX_SIZE*scaleY)+'px';
+    div.style.backgroundPosition=(-region[0]*scaleX)+'px '+(-region[1]*scaleY)+'px';
+    let t='';
+    if(type==='front'){ t='translate(-50%,-50%) rotateY(0deg) translateZ('+zDist+'px)'; }
+    else if(type==='back'){ t='translate(-50%,-50%) rotateY(180deg) translateZ('+zDist+'px)'; }
+    else if(type==='right'){ t='translate(-50%,-50%) rotateY(-90deg) translateZ('+zDist+'px)'; }
+    else if(type==='left'){ t='translate(-50%,-50%) rotateY(90deg) translateZ('+zDist+'px)'; }
+    else if(type==='top'){ t='translate(-50%,-50%) rotateX(90deg) translateZ('+zDist+'px)'; }
+    else if(type==='bottom'){
+      let extra = (partName==='head'||partName==='head2') ? ' scaleZ(-1)' : '';
+      t='translate(-50%,-50%)'+extra+' rotateX(-90deg) translateZ('+zDist+'px)';
+    }
+    div.style.transform=t; div.style.left='50%'; div.style.top='50%';
+    return div;
+  }
+  function buildPart(def, textureURL, name){
+    const part = document.createElement('div');
+    part.className='sk3d-part';
+    part.style.transform='translate3d('+(def.pos.x*PX)+'px,'+(def.pos.y*PX)+'px,'+(def.pos.z*PX)+'px)';
+    Object.keys(def.faces).forEach(faceType=>{
+      const f = makeFace(faceType, def.faces[faceType], def.w, def.h, def.d, def.inflate, name);
+      f.style.backgroundImage = 'url("'+textureURL+'")';
+      part.appendChild(f);
+    });
+    return part;
+  }
+  function buildScene(textureURL){
+    scene.innerHTML='';
+    Object.keys(PARTS).forEach(name=>{ scene.appendChild(buildPart(PARTS[name], textureURL, name)); });
+  }
+
+  let rotX=-14, rotY=28, zoom=130;
+  let dragging=false, lastX=0, lastY=0, autoRotate=false, autoTimer=null;
+  function applyTransform(){ scene.style.transform = 'translateZ(-'+(280-zoom)+'px) rotateX('+rotX+'deg) rotateY('+rotY+'deg)'; }
+  applyTransform();
+  function pointerDown(e){ dragging=true; viewport.classList.add('dragging'); const p=e.touches?e.touches[0]:e; lastX=p.clientX; lastY=p.clientY; stopAuto(); if(hint) hint.style.opacity='0'; }
+  function pointerMove(e){ if(!dragging) return; e.preventDefault(); const p=e.touches?e.touches[0]:e; const dx=p.clientX-lastX, dy=p.clientY-lastY; lastX=p.clientX; lastY=p.clientY; rotY+=dx*0.5; rotX=Math.max(-89,Math.min(89, rotX-dy*0.5)); applyTransform(); }
+  function pointerUp(){ dragging=false; viewport.classList.remove('dragging'); }
+  viewport.addEventListener('mousedown', pointerDown);
+  window.addEventListener('mousemove', pointerMove);
+  window.addEventListener('mouseup', pointerUp);
+  viewport.addEventListener('touchstart', pointerDown, {passive:true});
+  viewport.addEventListener('touchmove', pointerMove, {passive:false});
+  viewport.addEventListener('touchend', pointerUp);
+
+  const presets = { front:{x:-10,y:0}, back:{x:-10,y:180}, left:{x:-10,y:-90}, right:{x:-10,y:90}, top:{x:-80,y:20}, bottom:{x:80,y:20} };
+  document.querySelectorAll('.sk3d-controls [data-view]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ stopAuto(); const p=presets[btn.getAttribute('data-view')]; rotX=p.x; rotY=p.y; applyTransform(); });
+  });
+  const autoBtn = document.getElementById('sk3dAutoBtn');
+  function stopAuto(){ autoRotate=false; if(autoBtn) autoBtn.textContent='Автовращение'; autoBtn && autoBtn.classList.remove('active'); if(autoTimer){ clearInterval(autoTimer); autoTimer=null; } }
+  if(autoBtn) autoBtn.addEventListener('click', function(){
+    autoRotate = !autoRotate;
+    this.textContent = autoRotate ? 'Остановить' : 'Автовращение';
+    this.classList.toggle('active', autoRotate);
+    if(autoRotate){ autoTimer = setInterval(()=>{ rotY+=0.6; applyTransform(); }, 20); }
+    else if(autoTimer){ clearInterval(autoTimer); autoTimer=null; }
+  });
+  const zoomSlider = document.getElementById('sk3dZoom');
+  if(zoomSlider) zoomSlider.addEventListener('input', e=>{ zoom=parseInt(e.target.value,10); applyTransform(); });
+
+  // 1x1 прозрачный пиксель — заглушка, пока реальная текстура не подгрузилась/не найдена
+  const FALLBACK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+
+  window.loadSkin3D = function(slug, file, charName, skinName, row){
+    document.querySelectorAll('.skin-pick-table tr.sk-active').forEach(r=>r.classList.remove('sk-active'));
+    if(row) row.classList.add('sk-active');
+    if(currentEl) currentEl.innerHTML = `Показан: <b>${charName} — ${skinName}</b>`;
+    const url = 'assets/skins/'+slug+'/'+file;
+    const probe = new Image();
+    probe.onload = ()=>buildScene(url);
+    probe.onerror = ()=>{
+      buildScene(FALLBACK);
+      if(currentEl) currentEl.innerHTML = `Показан: <b>${charName} — ${skinName}</b> <span style="color:var(--maniac);">— файл текстуры не найден (${url})</span>`;
+    };
+    probe.src = url;
+  };
+})();
 
 /* ============ FUTURE CHARACTERS ============ */
 const future = [
@@ -1543,7 +1785,8 @@ lore.forEach(item=>{
 
 /* ============ CHANGELOG ============ */
 const changelog = [
-  { type:'added', title:'2.4.1 — первая партия моделей скинов', desc:'Готовы 16 скинов: классические на Некромансика, Аномалию, Рататуя и Маёра, плюс магазинные (NoFace и Херобрин для Аномалии, Без тыквы и banil_4759 для Рататуя) и все 4 милстоун-скина для Аномалии и Рататуя. Полный список — в разделе «Механики», п.22.'},
+  { type:'nerf', title:'2.4.2 — таймер ЛМС укорочен', desc:'Финальная дуэль теперь 2 минуты 15 секунд вместо 2:17. Все ЛМС-треки соответственно подрезаны под новую длину.'},
+  { type:'added', title:'2.4.1 — первая партия моделей скинов', desc:'Готовы 16 скинов: классические на Некромансика, Аномалию, Рататуя и Маёра, плюс магазинные (NoFace и Херобрин для Аномалии, Без тыквы и banil_4759 для Рататуя) и все 4 милстоун-скина для Аномалии и Рататуя. Полный список — в разделе «Скины».'},
   { type:'added', title:'2.4.1 — обновление лора', desc:'Уточнения и новые фрагменты: происхождение «Олимпа», судьба Арены после Reboot («Последний Боец»), Маёр во главе базы Авангарда, история «Незрячего» из Улья, переименование финального сервера в Kladlend АSIM. Раздел «Лор» дополнен несколькими загадочными обрывками без явного источника.'},
   { type:'added', title:'Версия 2.4 — «Кирилл возвращается»', desc:'Новый выживший класса Рашер: Кирилл. Стандартное здоровье, три способности — Вор, Глич, Имплант, плюс уникальная шкала ячеек и пассивка «Железо». Подробности в разделе «Выжившие».'},
   { type:'added', title:'Кирилл — Вор и Глич', desc:'Рывок в сторону взгляда, поведение которого зависит от текущего режима Глича: Бампер (откид убийцы на 10 блоков при столкновении), Призрак (Speed III себе на 5 сек, но короткий 3-блочный рывок), Маневренность (10-блочный рывок с 2 сек подготовки и замедлением после, без ограничений по перезарядке). У Бампера и Призрака общий 40-секундный заряд спецэффекта, тратится только при реальном попадании.'},
@@ -1588,7 +1831,7 @@ const hudMessages = [
  'Злость накоплена: 3.5',
  '«Не зря же меня называют Пивоваром»',
  'Стражей на карте: 2 — стан сокращён на 0.5 сек',
- 'ЛМС: таймер дуэли 2:17',
+ 'ЛМС: таймер дуэли 2:15',
 ];
 let hudIdx = 0;
 const hudEl = document.getElementById('hudMsg');
